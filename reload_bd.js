@@ -15,7 +15,7 @@ let data = [false, 1];
 
  
 client.on('connect', function () {
-  client.subscribe('esp32/', function (err) {
+  client.subscribe('esp32/status/', function (err) {
     if (!err) {
       client.publish('esp32/', 'Save data services')
     }
@@ -27,8 +27,8 @@ client.on('message', function (topic, message) {
   // message is Buffer
 	console.log(message.toString())
 
-	if (message.toString()=="1") {
-		console.log("IF 1")
+	if (message.toString()=="Led 01 ON") {
+		console.log("IF 01 1")
 	  	var sql = 'UPDATE status_lights SET status = 1 WHERE status_lights.id = 4';
 	
 	  	con.query(sql, data, (error, results, fields) => {
@@ -40,8 +40,8 @@ client.on('message', function (topic, message) {
 			});
 	}
 	
-	if (message.toString()=="0") {
-		console.log("IF 0")
+	if (message.toString()=="Led 01 OFF") {
+		console.log("IF 01 0")
 	  	var sql = 'UPDATE status_lights SET status = 0 WHERE status_lights.id = 4';
 	
 	  	con.query(sql, data, (error, results, fields) => {
