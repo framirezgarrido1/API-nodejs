@@ -1,5 +1,8 @@
 var mqtt = require('mqtt')
 var mysql = require('mysql');
+var Pushetta=require("pushetta");
+
+var pushetta = new Pushetta("94a800eaf22a2f98ca546a7316da82e857cdb9b4");
 
 var client  = mqtt.connect('mqtt://localhost:1883')
 
@@ -30,6 +33,7 @@ client.on('message', function (topic, message) {
 
 	if (message.toString()=="light-01-on") {
 	  	var sql = 'UPDATE status_lights SET status = 1 WHERE status_lights.id = 1';
+	  	pushetta.pushMessage("Costanera1980", "Luces de habitacion encendidas");
 	  	con.query(sql, data, (error, results, fields) => {
 	  		if (error){
 	    		return console.error(error.message);
@@ -40,6 +44,7 @@ client.on('message', function (topic, message) {
 	
 	if (message.toString()=="light-01-off") {
 	  	var sql = 'UPDATE status_lights SET status = 0 WHERE status_lights.id = 1';
+	  	pushetta.pushMessage("Costanera1980", "Luces de habitacion apagadas");
 	  	con.query(sql, data, (error, results, fields) => {
 	  		if (error){
 	    		return console.error(error.message);
