@@ -1,31 +1,55 @@
-var mysql = require('mysql');
 const express = require("express");
-
 const app = express();
 
-var con = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "root",
-  port:"8889",
-  database : 'status'
-});
+var mqtt = require('mqtt')
+var client  = mqtt.connect('mqtt://localhost:1883')
 
-var sql = 'SELECT * FROM status_lights LIMIT 10';
+client.subscribe('esp32/status/')
+console.log('Suscrito a esp32/status/')
+
+client.on('message', function (topic, message) {
+  	console.log(topic, message.toString())
+});	
+
+let light = {
+ id: 100000,
+ status: '',
+ name: ''
+};
+
+app.post('/', function(req, res) {
+	res.send('Saludos desde express');
+});	
+
+app.post('/light/01/on', function(req, res) {
+
+	client.publish('esp32/status/', 'light-01-on')
+
+  	light = {
+  		id: 'id01',
+  		topic: 'light-01',
+  		status: 'on',
+  		name: 'light habitacion 01'
+  	};
+
+ 	res.send(light);
+});	
+
+app.post('/light/01/off', function(req, res) {
+
+	client.publish('esp32/status/', 'light-01-off')
+
+  	light = {
+  		id: 'id01',
+  		topic: 'light-01',
+  		status: 'off',
+  		name: 'light habitacion 01'
+  	};
+
+ 	res.send(light);
+});	
 
 
-module.exports = function() {
-  	var data = { lights: [] }
-	con.connect(function(err) {
-	  	if (err) throw err;
-	  	console.log("Connected!");
-	  	con.query(sql, data, function (err, result) {
-	    	if (err) throw err;
-
-  			for(i=0; i<result.length; i++){
-	    		data.lights.push({ id: result[i].id, name: result[i].name, status: result[i].status, fecha: result[i].date })
-	    	}
-		});
-	});
-	return data
-}
+app.listen(3001, () => {
+ console.log("El servidor está inicializado en el puerto 3001");
+});	

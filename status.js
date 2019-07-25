@@ -13,16 +13,22 @@ var con = mysql.createConnection({
 
 var devicesResponse;
 
+//Query para traer todos los registros de Lights (limite de 10)
 var sql = 'SELECT * FROM status_lights LIMIT 10';
 
 con.connect(function(err) {
 
+	//API rest http://localhost:3005/status
 
 	app.get('/status', function(req, res){
 		console.log("Connected!");
 		con.query(sql, function (err, result) {
 	   		var devicesResponse= {devices: result};
+
+	   		//Imprime por consola los registros
 			console.log(result);
+
+			//Imprime los registros
 	   		res.json(devicesResponse);
 		});
 	});
@@ -31,5 +37,4 @@ con.connect(function(err) {
 
 app.listen(3005, () => {
  console.log("El servidor está inicializado en el puerto 3005");
- //console.log(res.json(devicesResponse));
 });	
