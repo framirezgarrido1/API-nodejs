@@ -21,5 +21,5 @@ Publicación por MQTT: client.publish('esp32/status/', 'light-01-on')
 # status.js
 Controla la llamada a la API que regresa los estados guardados en la base de datos.
 
-# update_status
+# update_status.js
 Recibe los estados publicados por medio del protocolo MQTT y los guarda en la base de datos.
