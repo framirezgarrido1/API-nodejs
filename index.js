@@ -46,7 +46,7 @@ app.post('/light/01/off', function(req, res) {
     name: 'light-0001'
   };
 
- 	res.send(device);
+ 	  res.send(device);
 });	
 
 

@@ -74,5 +74,9 @@ client.on('message', function (topic, message) {
 		});
 	}
 
+	else {
+		console.log("Comando no encontrado")
+	}
+
 });
   //client.end()	
