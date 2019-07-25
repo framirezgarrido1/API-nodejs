@@ -11,7 +11,7 @@ client.on('message', function (topic, message) {
   	console.log(topic, message.toString())
 });	
 
-let light = {
+let device = {
  id: 100000,
  status: '',
  name: ''
@@ -25,28 +25,28 @@ app.post('/light/01/on', function(req, res) {
 
 	client.publish('esp32/status/', 'light-01-on')
 
-  	light = {
-  		id: 'id01',
-  		topic: 'light-01',
-  		status: 'on',
-  		name: 'light habitacion 01'
-  	};
+  device = {
+  	id: '1',
+  	topic: 'esp32/status/',
+  	status: '1',
+  	name: 'light-0001'
+  };
 
- 	res.send(light);
+ 	res.send(device);
 });	
 
 app.post('/light/01/off', function(req, res) {
 
 	client.publish('esp32/status/', 'light-01-off')
 
-  	light = {
-  		id: 'id01',
-  		topic: 'light-01',
-  		status: 'off',
-  		name: 'light habitacion 01'
-  	};
+  device = {
+    id: '1',
+    topic: 'esp32/status/',
+    status: '0',
+    name: 'light-0001'
+  };
 
- 	res.send(light);
+ 	res.send(device);
 });	
 
 
