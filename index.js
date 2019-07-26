@@ -1,8 +1,24 @@
+var mysql = require('mysql');
 const express = require("express");
+const bodyParser = require("body-parser");
+
 const app = express();
+
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 var mqtt = require('mqtt')
 var client  = mqtt.connect('mqtt://localhost:1883')
+
+var con = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "root",
+  port:"8889",
+  database : 'status'
+});
+
+var devicesResponse;
 
 client.subscribe('esp32/status/')
 console.log('Suscrito a esp32/status/')
@@ -11,42 +27,32 @@ client.on('message', function (topic, message) {
   	console.log(topic, message.toString())
 });	
 
-let device = {
- id: 100000,
- status: '',
- name: ''
-};
-
 app.post('/', function(req, res) {
 	res.send('Saludos desde express');
 });	
 
-app.post('/light/01/on', function(req, res) {
+con.connect(function(err) {
 
-	client.publish('esp32/status/', 'light-01-on')
+  //API rest http://localhost:3005/status
+  app.get('/:id/:topic/:status', function(req, res){
 
-  device = {
-  	id: '1',
-  	topic: 'esp32/status/',
-  	status: '1',
-  	name: 'light-0001'
-  };
 
- 	res.send(device);
-});	
+    //Publicando en el canal MQTT seleccionado
+    client.publish(`esp32/${req.params.topic}/`, `light-${req.params.id}-${req.params.status}`)
 
-app.post('/light/01/off', function(req, res) {
-
-	client.publish('esp32/status/', 'light-01-off')
-
-  device = {
-    id: '1',
-    topic: 'esp32/status/',
-    status: '0',
-    name: 'light-0001'
-  };
-
- 	  res.send(device);
+    setTimeout(function(){
+      console.log("Esperando 2 segundos...")
+      console.log("Connected!");
+      var sql = `SELECT * FROM ${req.params.status}_lights WHERE id = ${req.params.id}`;
+      con.query(sql, function (err, result) {
+        var devicesResponse= {devices: result};
+        //Imprime por consola los registros
+        console.log(result);
+        //Imprime los registros
+        res.json(devicesResponse);
+      });
+    },1000);
+  });
 });	
 
 

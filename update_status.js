@@ -31,51 +31,27 @@ client.on('message', function (topic, message) {
   // message is Buffer
 	console.log(message.toString())
 
-	if (message.toString()=="light-01-on") {
-	  	var sql = 'UPDATE status_lights SET status = 1 WHERE status_lights.id = 1';
-	  	pushetta.pushMessage("Costanera1980", "Luces de habitacion encendidas");
-	  	con.query(sql, data, (error, results, fields) => {
-	  		if (error){
-	    		return console.error(error.message);
-	  		}
-	  		console.log('Status "1" guardado en base de datos en id 1')
-		});
-	}
-	
-	if (message.toString()=="light-01-off") {
-	  	var sql = 'UPDATE status_lights SET status = 0 WHERE status_lights.id = 1';
-	  	pushetta.pushMessage("Costanera1980", "Luces de habitacion apagadas");
-	  	con.query(sql, data, (error, results, fields) => {
-	  		if (error){
-	    		return console.error(error.message);
-	  		}
-	  		console.log('Status "0" guardado en base de datos en id 1')
-		});
-	}
+	msjTopic = message.toString()
 
-	if (message.toString()=="light-02-on") {
-	  	var sql = 'UPDATE status_lights SET status = 1 WHERE status_lights.id = 2';
+	var idDevice = msjTopic[6]
+	var statusDevice = msjTopic[8]
+
+	if (message.toString()==`light-${idDevice}-${statusDevice}`) {
+	  	var sql = `UPDATE status_lights SET status = ${statusDevice} WHERE status_lights.id = ${idDevice}`;
+	  	if (statusDevice == "1") {
+	  		pushetta.pushMessage("Costanera1980", `Luces de habitacion ${idDevice} encendidas`);
+	  	}
+
+	  	else {
+	  		pushetta.pushMessage("Costanera1980", `Luces de habitacion ${idDevice} apagadas`);
+	  	}
+	  	
 	  	con.query(sql, data, (error, results, fields) => {
 	  		if (error){
 	    		return console.error(error.message);
 	  		}
-	
-	  		console.log('Status "1" guardado en base de datos en id 2')
+	  		console.log(`Status "${statusDevice}" guardado en base de datos en id "${idDevice}"`)
 		});
-	}
-
-	if (message.toString()=="light-02-off") {
-	  	var sql = 'UPDATE status_lights SET status = 0 WHERE status_lights.id = 2';
-	  	con.query(sql, data, (error, results, fields) => {
-	  		if (error){
-	    		return console.error(error.message);
-	  		}
-	  		console.log('Status "0" guardado en base de datos en id 2')
-		});
-	}
-
-	else {
-		console.log("Comando no encontrado")
 	}
 
 });
