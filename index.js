@@ -19,6 +19,7 @@ var con = mysql.createConnection({
 });
 
 var devicesResponse;
+let data = [false, 1];
 
 client.subscribe('esp32/status/')
 console.log('Suscrito a esp32/status/')
@@ -33,26 +34,70 @@ app.post('/', function(req, res) {
 
 con.connect(function(err) {
 
-  //API rest http://localhost:3005/status
-  app.get('/:id/:topic/:status', function(req, res){
 
+  // API rest http://localhost:3005/id/topic/status/
+  // Escribir nuevo estado en el dispositivo
+
+  app.get('/:id/:topic/:status', function(req, res){
 
     //Publicando en el canal MQTT seleccionado
     client.publish(`esp32/${req.params.topic}/`, `light-${req.params.id}-${req.params.status}`)
 
-    setTimeout(function(){
-      console.log("Esperando 2 segundos...")
+
       console.log("Connected!");
-      var sql = `SELECT * FROM ${req.params.status}_lights WHERE id = ${req.params.id}`;
-      con.query(sql, function (err, result) {
-        var devicesResponse= {devices: result};
-        //Imprime por consola los registros
-        console.log(result);
-        //Imprime los registros
-        res.json(devicesResponse);
+
+      var sqludapte = `UPDATE status_lights SET status = ${req.params.status} WHERE status_lights.id = ${req.params.id}`;
+
+      con.query(sqludapte, data, (error, results, fields) => {
+        if (error){
+          return console.error(error.message);
+        }
+        console.log(`Status "${req.params.status}" guardado en base de datos en id "${req.params.id}"`)
+        var sql = `SELECT * FROM status_lights WHERE id = ${req.params.id}`;
+        con.query(sql, function (err, result) {
+          var devicesResponse= {devices: result};
+          //Imprime por consola los registros
+          console.log(result);
+          //Imprime los registros
+          res.json(devicesResponse);
+        });
       });
-    },1000);
+
   });
+
+  // API rest http://localhost:3005/id/status/
+  // Estado poe dispositivo
+  app.get('/:id/:topic/', function(req, res){
+
+    console.log("Connected!");
+    var sql = `SELECT * FROM status_lights WHERE id = ${req.params.id}`;
+    con.query(sql, function (err, result) {
+      var devicesResponse= {devices: result};
+      //Imprime por consola los registros
+      console.log(result);
+      //Imprime los registros
+      res.json(devicesResponse);
+    });
+
+  });
+
+  // API rest http://localhost:3005/status
+  // Estado general de todos los dispositivos 
+  app.get('/status', function(req, res){
+
+    console.log("Connected!");
+    var sql = 'SELECT * FROM status_lights';
+    con.query(sql, function (err, result) {
+      var devicesResponse= {devices: result};
+      //Imprime por consola los registros
+      console.log(result);
+      //Imprime los registros
+      res.json(devicesResponse);
+    });
+
+  });
+
+
 });	
 
 
