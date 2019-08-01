@@ -1,6 +1,9 @@
 var mysql = require('mysql');
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require('mongoose')
+
+const Devices = require('./models/devices.js')
 
 const app = express();
 
@@ -19,7 +22,7 @@ var con = mysql.createConnection({
 });
 
 var devicesResponse;
-let data = [false, 1];
+
 
 client.subscribe('esp32/status/')
 console.log('Suscrito a esp32/status/')
@@ -31,6 +34,24 @@ client.on('message', function (topic, message) {
 app.post('/', function(req, res) {
 	res.send('Saludos desde express');
 });	
+
+app.post('/devices', function(req, res) {
+  //res.send('Saludos desde express');
+  console.log('POST /api/devices')
+  console.log(req.body)
+
+  let devices = new Devices()
+  devices.name = req.body.name
+  devices.type = req.body.type
+  devices.status = req.body.status
+  devices.topic = req.body.topic
+
+  devices.save((err, productStored) => {
+    if (err) res.status(500).send({message:`Error al guardar ${err}`})
+
+    res.status(200).send({Device: productStored})
+  })
+})
 
 con.connect(function(err) {
 
@@ -100,7 +121,12 @@ con.connect(function(err) {
 
 });	
 
+mongoose.connect('mongodb://localhost:27017/storage_devices', (err, res) => {
+  if (err) throw err 
+  console.log('conexion OK')
 
-app.listen(3001, () => {
- console.log("El servidor está inicializado en el puerto 3001");
-});	
+  app.listen(3001, () => {
+    console.log("El servidor está inicializado en el puerto 3001");
+  })
+})
+
